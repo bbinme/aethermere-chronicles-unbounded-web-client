@@ -1,0 +1,22 @@
+{
+  "planPath": "web-client/specs/2026-04-26-aethermere-web-client-plan.md",
+  "tasks": [
+    { "id": 1, "subject": "Task 0: Vite + React + TypeScript scaffold", "status": "pending", "blockedBy": [] },
+    { "id": 2, "subject": "Task 1: Tailwind + shadcn/ui + theme + fonts", "status": "pending", "blockedBy": [1] },
+    { "id": 3, "subject": "Task 2: Testing infrastructure (Vitest + RTL + MSW)", "status": "pending", "blockedBy": [1] },
+    { "id": 4, "subject": "Task 3: AuthContext + apiFetch with refresh-on-401", "status": "pending", "blockedBy": [3] },
+    { "id": 5, "subject": "Task 4: API modules (auth, characters, rulesets) + types", "status": "pending", "blockedBy": [4] },
+    { "id": 6, "subject": "Task 5: Router + ProtectedRoute + QueryClientProvider", "status": "pending", "blockedBy": [5] },
+    { "id": 7, "subject": "Task 6: AppShell + LoginPage", "status": "pending", "blockedBy": [6, 2] },
+    { "id": 8, "subject": "Task 7: RegisterPage with auto-login", "status": "pending", "blockedBy": [7] },
+    { "id": 9, "subject": "Task 8: GMS — CORS configuration", "status": "pending", "blockedBy": [] },
+    { "id": 10, "subject": "Task 9: GMS — character.portrait_uri migration + entity", "status": "pending", "blockedBy": [] },
+    { "id": 11, "subject": "Task 10: GMS — portrait upload + retrieval endpoints", "status": "pending", "blockedBy": [10] },
+    { "id": 12, "subject": "Task 11: CharacterPortrait + CharacterListPage", "status": "pending", "blockedBy": [8, 11] },
+    { "id": 13, "subject": "Task 12: Wizard shell + Identity/Lineage/Class/Culture", "status": "pending", "blockedBy": [12] },
+    { "id": 14, "subject": "Task 13: Wizard Stats + Portrait steps", "status": "pending", "blockedBy": [13] },
+    { "id": 15, "subject": "Task 14: Wizard Review + submit flow", "status": "pending", "blockedBy": [14] },
+    { "id": 16, "subject": "Task 15: Playwright happy-path E2E", "status": "pending", "blockedBy": [15] }
+  ],
+  "lastUpdated": "2026-04-26"
+}
