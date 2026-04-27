@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { LoginPage } from './pages/LoginPage';
 
 const queryClient = new QueryClient();
 
@@ -9,7 +10,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<div>Login placeholder</div>} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<div>Register placeholder</div>} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<div>Home placeholder</div>} />

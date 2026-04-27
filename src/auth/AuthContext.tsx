@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { configureApiClient } from '@/api/client';
+import { logout as apiLogout } from '@/api/auth';
 import { AuthContext, type AuthState } from './authContextValue';
 
 function decodePlayerId(token: string | null): string | null {
@@ -32,6 +33,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessTokenState(token);
   }, []);
 
+  const logout = useCallback(async () => {
+    try {
+      await apiLogout();
+    } catch {
+      // Even if logout fails server-side, clear local state.
+    } finally {
+      setAccessTokenState(null);
+    }
+  }, []);
+
   // Wire apiFetch on mount.
   useEffect(() => {
     configureApiClient({
@@ -52,8 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accessToken,
       playerId: decodePlayerId(accessToken),
       setAccessToken,
+      logout,
     }),
-    [accessToken, setAccessToken],
+    [accessToken, setAccessToken, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

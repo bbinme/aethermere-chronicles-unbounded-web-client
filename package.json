@@ -17,6 +17,8 @@
   "dependencies": {
     "@fontsource/cinzel": "^5.2.8",
     "@fontsource/raleway": "^5.2.8",
+    "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@tanstack/react-query": "^5.100.5",
     "class-variance-authority": "^0.7.1",
@@ -24,9 +26,11 @@
     "lucide-react": "^1.11.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.74.0",
     "react-router-dom": "^7.14.2",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

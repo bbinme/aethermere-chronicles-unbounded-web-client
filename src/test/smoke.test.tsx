@@ -17,5 +17,5 @@ test('redirects unauthenticated user to /login', async () => {
       <App />
     </AuthProvider>,
   );
-  expect(await screen.findByText('Login placeholder')).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: /sign in/i })).toBeInTheDocument();
 });
