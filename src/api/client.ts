@@ -103,5 +103,6 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
   }
 
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
