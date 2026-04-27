@@ -28,4 +28,12 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // shadcn/ui primitives commonly co-locate variant helpers (e.g. buttonVariants)
+    // alongside the component. Disable the react-refresh export rule for these files.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 );
