@@ -27,7 +27,7 @@ export const wizardSchema = z.object({
 
 export type WizardValues = z.infer<typeof wizardSchema>;
 
-export const RULESET_KEY = 'core';
+export const RULESET_KEY = 'DND';
 
 export const stepFieldGroups = {
   identity: ['name', 'pronouns', 'bio', 'gender'] as const,

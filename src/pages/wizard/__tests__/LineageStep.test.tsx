@@ -55,7 +55,7 @@ function setup() {
 
 test('lists lineages and binds selection to the form', async () => {
   server.use(
-    http.get('http://localhost:8080/api/rulesets/core/lineages', () =>
+    http.get('http://localhost:8080/api/rulesets/DND/lineages', () =>
       HttpResponse.json({
         term: 'Lineage',
         lineages: [
