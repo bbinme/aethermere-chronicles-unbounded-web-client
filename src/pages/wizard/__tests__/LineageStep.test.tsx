@@ -30,12 +30,12 @@ function setup() {
         charClass: '',
         culture: '',
         abilities: {
-          strength: 0,
-          dexterity: 0,
-          constitution: 0,
-          intelligence: 0,
-          wisdom: 0,
-          charisma: 0,
+          strength: 8,
+          dexterity: 8,
+          constitution: 8,
+          intelligence: 8,
+          wisdom: 8,
+          charisma: 8,
         },
       },
     });

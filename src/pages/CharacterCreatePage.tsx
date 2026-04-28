@@ -9,6 +9,8 @@ import { IdentityStep } from './wizard/IdentityStep';
 import { LineageStep } from './wizard/LineageStep';
 import { ClassStep } from './wizard/ClassStep';
 import { CultureStep } from './wizard/CultureStep';
+import { StatsStep } from './wizard/StatsStep';
+import { PortraitStep } from './wizard/PortraitStep';
 
 const STEP_FIELDS = [
   stepFieldGroups.identity,
@@ -35,12 +37,12 @@ export function CharacterCreatePage() {
       charClass: '',
       culture: '',
       abilities: {
-        strength: 0,
-        dexterity: 0,
-        constitution: 0,
-        intelligence: 0,
-        wisdom: 0,
-        charisma: 0,
+        strength: 8,
+        dexterity: 8,
+        constitution: 8,
+        intelligence: 8,
+        wisdom: 8,
+        charisma: 8,
       },
     },
   });
@@ -69,12 +71,8 @@ export function CharacterCreatePage() {
             {step === 1 && <LineageStep />}
             {step === 2 && <ClassStep />}
             {step === 3 && <CultureStep />}
-            {step === 4 && (
-              <p className="text-muted-foreground">Stats step — coming in Task 13.</p>
-            )}
-            {step === 5 && (
-              <p className="text-muted-foreground">Portrait step — coming in Task 13.</p>
-            )}
+            {step === 4 && <StatsStep />}
+            {step === 5 && <PortraitStep />}
             {step === 6 && (
               <p className="text-muted-foreground">Review + submit — coming in Task 14.</p>
             )}

@@ -10,14 +10,15 @@ export const wizardSchema = z.object({
   heritage: z.string().min(1, 'Required'),
   charClass: z.string().min(1, 'Required'),
   culture: z.string().min(1, 'Required'),
-  // Stats — tightened in Task 13. For now allow the AbilityScoresDto shape.
+  // Stats — DND 27-point buy (each ability 8..16). Schema allows under-spent
+  // submissions; the StatsStep UI prevents over-spending.
   abilities: z.object({
-    strength: z.number().int(),
-    dexterity: z.number().int(),
-    constitution: z.number().int(),
-    intelligence: z.number().int(),
-    wisdom: z.number().int(),
-    charisma: z.number().int(),
+    strength: z.number().int().min(8, 'Min 8').max(16, 'Max 16'),
+    dexterity: z.number().int().min(8, 'Min 8').max(16, 'Max 16'),
+    constitution: z.number().int().min(8, 'Min 8').max(16, 'Max 16'),
+    intelligence: z.number().int().min(8, 'Min 8').max(16, 'Max 16'),
+    wisdom: z.number().int().min(8, 'Min 8').max(16, 'Max 16'),
+    charisma: z.number().int().min(8, 'Min 8').max(16, 'Max 16'),
   }),
   // Other character fields
   gender: z.string().min(1, 'Required'),
