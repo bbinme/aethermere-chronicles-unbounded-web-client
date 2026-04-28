@@ -22,7 +22,16 @@ export function IdentityStep() {
       </div>
       <div>
         <Label htmlFor="gender">Gender</Label>
-        <Input id="gender" autoComplete="off" {...register('gender')} />
+        <select
+          id="gender"
+          {...register('gender')}
+          className="w-full border border-input rounded-md p-2 bg-background"
+        >
+          <option value="">Select…</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="NON_BINARY">Non-binary</option>
+        </select>
         {errors.gender && (
           <p role="alert" className="text-destructive text-sm">
             {errors.gender.message}
