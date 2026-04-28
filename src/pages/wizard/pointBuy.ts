@@ -56,3 +56,14 @@ export function canIncrement(score: number, remaining: number): boolean {
 export function canDecrement(score: number): boolean {
   return score > MIN_SCORE;
 }
+
+export function applyBonuses(
+  base: Record<AbilityKey, number>,
+  plus2: AbilityKey | '',
+  plus1: AbilityKey | '',
+): Record<AbilityKey, number> {
+  const result = { ...base };
+  if (plus2) result[plus2] += 2;
+  if (plus1) result[plus1] += 1;
+  return result;
+}

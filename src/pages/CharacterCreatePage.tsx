@@ -21,6 +21,7 @@ import { PortraitStep } from './wizard/PortraitStep';
 import { ReviewStep } from './wizard/ReviewStep';
 import { createCharacter, uploadPortrait } from '@/api/characters';
 import { ApiError } from '@/api/errors';
+import { applyBonuses, type AbilityKey } from './wizard/pointBuy';
 
 const STEP_FIELDS = [
   stepFieldGroups.identity,
@@ -68,6 +69,8 @@ export function CharacterCreatePage() {
         wisdom: 8,
         charisma: 8,
       },
+      bonusPlus2: '',
+      bonusPlus1: '',
     },
   });
   const [step, setStep] = useState(0);
@@ -95,6 +98,11 @@ export function CharacterCreatePage() {
     setSubmitting(true);
     const v = methods.getValues();
     try {
+      const finalAbilities = applyBonuses(
+        v.abilities,
+        v.bonusPlus2 as AbilityKey | '',
+        v.bonusPlus1 as AbilityKey | '',
+      );
       const created = await createCharacter({
         name: v.name,
         ruleset: RULESET_KEY,
@@ -103,7 +111,7 @@ export function CharacterCreatePage() {
         charClass: v.charClass,
         culture: v.culture,
         gender: v.gender,
-        abilities: v.abilities,
+        abilities: finalAbilities,
       });
 
       if (v.portraitFile) {

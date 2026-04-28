@@ -101,7 +101,9 @@ async function fillWizardThroughReview(
   await user.click(await screen.findByText('Highborn'));
   await user.click(screen.getByRole('button', { name: /^next$/i }));
 
-  // Step 4: Stats — already valid (all 8s, 27 points unspent but schema permits)
+  // Step 4: Stats — pick the required +2 and +1 bonuses (must be different)
+  await user.selectOptions(screen.getByLabelText(/\+2 bonus to/i), 'strength');
+  await user.selectOptions(screen.getByLabelText(/\+1 bonus to/i), 'dexterity');
   await user.click(screen.getByRole('button', { name: /^next$/i }));
 
   // Step 5: Portrait — skip
@@ -153,6 +155,14 @@ test('happy path: creates character and navigates home', async () => {
     charClass: 'fighter',
     culture: 'highborn',
     gender: 'MALE',
+    abilities: {
+      strength: 10, // 8 base + 2 bonus
+      dexterity: 9, // 8 base + 1 bonus
+      constitution: 8,
+      intelligence: 8,
+      wisdom: 8,
+      charisma: 8,
+    },
   });
 });
 
