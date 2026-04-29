@@ -3,9 +3,20 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { listLineages } from '@/api/rulesets';
 import { RULESET_KEY, type WizardValues } from './schema';
 
+const GRID_CELLS = [
+  'r0_c0', 'r0_c1', 'r0_c2',
+  'r1_c0', 'r1_c1', 'r1_c2',
+  'r2_c0', 'r2_c1', 'r2_c2',
+] as const;
+
+const LINEAGE_ICONS_M = GRID_CELLS.map((c) => `/icons/lineages/apr12_${c}.png`);
+const LINEAGE_ICONS_F = GRID_CELLS.map((c) => `/icons/lineages_f/apr28_${c}.png`);
+
 export function LineageStep() {
   const { control, watch, setValue } = useFormContext<WizardValues>();
   const selectedLineage = watch('lineage');
+  const gender = watch('gender');
+  const icons = gender === 'FEMALE' ? LINEAGE_ICONS_F : LINEAGE_ICONS_M;
   const {
     data: lineages = [],
     isLoading,
@@ -30,7 +41,7 @@ export function LineageStep() {
         render={({ field, fieldState }) => (
           <>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {lineages.map((l) => (
+              {lineages.map((l, i) => (
                 <li key={l.key}>
                   <button
                     type="button"
@@ -41,14 +52,26 @@ export function LineageStep() {
                       setValue('heritage', next?.key ?? '', { shouldValidate: true });
                     }}
                     className={
-                      'w-full text-left p-4 border rounded-md transition-colors ' +
+                      'w-full text-left p-4 border rounded-md transition-colors flex gap-4 items-start ' +
                       (field.value === l.key
                         ? 'border-primary bg-muted'
                         : 'border-border hover:bg-muted/30')
                     }
                   >
-                    <h3 className="font-heading text-lg">{l.displayName}</h3>
-                    <p className="text-sm text-muted-foreground">{l.description}</p>
+                    {icons[i] && (
+                      <img
+                        src={icons[i]}
+                        alt=""
+                        className="w-16 h-16 rounded-md object-cover flex-shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-heading text-lg">{l.displayName}</h3>
+                      <p className="text-sm text-muted-foreground">{l.description}</p>
+                    </div>
                   </button>
                 </li>
               ))}
