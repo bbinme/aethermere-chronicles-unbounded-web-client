@@ -207,19 +207,21 @@ export function CharacterSheetPage() {
           <Row label="Level" value={String(character.level)} />
         </section>
 
-        <section className="border-t border-border pt-6 space-y-3">
-          <h2 className="text-xl font-heading">Abilities</h2>
-          <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-            {Object.entries(character.abilities).map(([key, value]) => (
-              <li key={key} className="text-center">
-                <div className="text-sm text-muted-foreground">
-                  {ABILITY_LABELS[key] ?? key}
-                </div>
-                <div className="font-heading text-lg">{value}</div>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {character.abilities && (
+          <section className="border-t border-border pt-6 space-y-3">
+            <h2 className="text-xl font-heading">Abilities</h2>
+            <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {Object.entries(character.abilities).map(([key, value]) => (
+                <li key={key} className="text-center">
+                  <div className="text-sm text-muted-foreground">
+                    {ABILITY_LABELS[key] ?? key}
+                  </div>
+                  <div className="font-heading text-lg">{value}</div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <Button variant="ghost" onClick={() => nav('/')}>← Back to characters</Button>
       </div>
