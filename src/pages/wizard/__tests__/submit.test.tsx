@@ -102,8 +102,8 @@ async function fillWizardThroughReview(
   await user.click(screen.getByRole('button', { name: /^next$/i }));
 
   // Step 4: Stats — pick the required +2 and +1 bonuses (must be different)
-  await user.selectOptions(screen.getByLabelText(/\+2 bonus to/i), 'strength');
-  await user.selectOptions(screen.getByLabelText(/\+1 bonus to/i), 'dexterity');
+  await user.click(screen.getByLabelText(/\+2 bonus to STR/i));
+  await user.click(screen.getByLabelText(/\+1 bonus to DEX/i));
   await user.click(screen.getByRole('button', { name: /^next$/i }));
 
   // Step 5: Portrait — skip

@@ -1,6 +1,5 @@
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   ABILITY_KEYS,
   ABILITY_LABELS,
@@ -16,6 +15,7 @@ import type { WizardValues } from './schema';
 export function StatsStep() {
   const {
     control,
+    setValue,
     formState: { errors },
   } = useFormContext<WizardValues>();
   const abilities = useWatch<WizardValues, 'abilities'>({ control, name: 'abilities' });
@@ -25,13 +25,23 @@ export function StatsStep() {
   const finalScores = applyBonuses(abilities, plus2 as AbilityKey | '', plus1 as AbilityKey | '');
 
   return (
-    <fieldset className="space-y-6">
+    <fieldset className="space-y-4">
       <legend className="text-2xl font-heading mb-4">Abilities</legend>
       <p className={remaining === 0 ? 'text-primary' : 'text-foreground'}>
         Points remaining: <strong>{remaining}</strong> / {TOTAL_POINTS}
       </p>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-[3rem_auto_2.5rem_auto_3rem_3rem_4rem] gap-2 items-center text-sm text-muted-foreground px-1">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span className="text-center">+2</span>
+        <span className="text-center">+1</span>
+        <span className="text-right">Total</span>
+      </div>
+
+      <div className="space-y-2">
         {ABILITY_KEYS.map((key) => (
           <Controller
             key={key}
@@ -39,10 +49,9 @@ export function StatsStep() {
             name={`abilities.${key}` as const}
             render={({ field }) => {
               const score = field.value;
-              const bonus = (plus2 === key ? 2 : 0) + (plus1 === key ? 1 : 0);
               return (
-                <div className="flex items-center gap-4">
-                  <span className="w-12 font-heading">{ABILITY_LABELS[key]}</span>
+                <div className="grid grid-cols-[3rem_auto_2.5rem_auto_3rem_3rem_4rem] gap-2 items-center">
+                  <span className="font-heading">{ABILITY_LABELS[key]}</span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -53,7 +62,7 @@ export function StatsStep() {
                     −
                   </Button>
                   <span
-                    className="w-8 text-center font-heading text-lg"
+                    className="text-center font-heading text-lg"
                     data-testid={`score-${key}`}
                   >
                     {score}
@@ -67,12 +76,25 @@ export function StatsStep() {
                   >
                     +
                   </Button>
-                  {bonus > 0 && (
-                    <span className="text-primary text-sm">+{bonus}</span>
-                  )}
-                  <span className="ml-auto text-muted-foreground text-sm">
-                    Total: <strong className="text-foreground">{finalScores[key]}</strong>
-                  </span>
+                  <input
+                    type="radio"
+                    name="bonusPlus2"
+                    value={key}
+                    checked={plus2 === key}
+                    onChange={() => setValue('bonusPlus2', key, { shouldValidate: true })}
+                    aria-label={`+2 bonus to ${ABILITY_LABELS[key]}`}
+                    className="justify-self-center accent-primary"
+                  />
+                  <input
+                    type="radio"
+                    name="bonusPlus1"
+                    value={key}
+                    checked={plus1 === key}
+                    onChange={() => setValue('bonusPlus1', key, { shouldValidate: true })}
+                    aria-label={`+1 bonus to ${ABILITY_LABELS[key]}`}
+                    className="justify-self-center accent-primary"
+                  />
+                  <span className="text-right font-heading text-lg">{finalScores[key]}</span>
                 </div>
               );
             }}
@@ -80,58 +102,13 @@ export function StatsStep() {
         ))}
       </div>
 
-      <div className="border-t border-border pt-4 space-y-3">
-        <h3 className="font-heading text-lg text-primary">Bonus Allocation</h3>
-        <Controller
-          control={control}
-          name="bonusPlus2"
-          render={({ field, fieldState }) => (
-            <div className="flex items-center gap-3">
-              <Label htmlFor="bonus-plus-2" className="w-24">+2 bonus to</Label>
-              <select
-                id="bonus-plus-2"
-                value={field.value ?? ''}
-                onChange={(e) => field.onChange(e.target.value)}
-                className="border border-input rounded-md p-2 bg-background"
-              >
-                <option value="">— Select —</option>
-                {ABILITY_KEYS.map((k) => (
-                  <option key={k} value={k}>{ABILITY_LABELS[k]}</option>
-                ))}
-              </select>
-              {fieldState.error && (
-                <span role="alert" className="text-destructive text-sm">{fieldState.error.message}</span>
-              )}
-            </div>
-          )}
-        />
-        <Controller
-          control={control}
-          name="bonusPlus1"
-          render={({ field, fieldState }) => (
-            <div className="flex items-center gap-3">
-              <Label htmlFor="bonus-plus-1" className="w-24">+1 bonus to</Label>
-              <select
-                id="bonus-plus-1"
-                value={field.value ?? ''}
-                onChange={(e) => field.onChange(e.target.value)}
-                className="border border-input rounded-md p-2 bg-background"
-              >
-                <option value="">— Select —</option>
-                {ABILITY_KEYS.map((k) => (
-                  <option key={k} value={k}>{ABILITY_LABELS[k]}</option>
-                ))}
-              </select>
-              {fieldState.error && (
-                <span role="alert" className="text-destructive text-sm">{fieldState.error.message}</span>
-              )}
-            </div>
-          )}
-        />
-        {errors.bonusPlus1?.message === 'Must be different abilities' && (
-          <p role="alert" className="text-destructive text-sm">Must be different abilities</p>
-        )}
-      </div>
+      {(errors.bonusPlus2 || errors.bonusPlus1) && (
+        <p role="alert" className="text-destructive text-sm">
+          {errors.bonusPlus1?.message === 'Must be different abilities'
+            ? 'Pick different abilities for the +2 and +1 bonuses.'
+            : 'Pick a +2 and a +1 bonus.'}
+        </p>
+      )}
     </fieldset>
   );
 }
