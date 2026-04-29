@@ -8,6 +8,11 @@ function lineageIconPath(key: string, gender: string): string {
   return `/icons/${folder}/${key.toLowerCase()}.png`;
 }
 
+function heritageIconPath(key: string, gender: string): string {
+  const folder = gender === 'FEMALE' ? 'heritages_f' : 'heritages';
+  return `/icons/${folder}/${key.toLowerCase()}.png`;
+}
+
 export function LineageStep() {
   const { control, watch, setValue } = useFormContext<WizardValues>();
   const selectedLineage = watch('lineage');
@@ -92,14 +97,24 @@ export function LineageStep() {
                       type="button"
                       onClick={() => field.onChange(h.key)}
                       className={
-                        'w-full text-left p-3 border rounded-md transition-colors ' +
+                        'w-full text-left p-3 border rounded-md transition-colors flex gap-3 items-start ' +
                         (field.value === h.key
                           ? 'border-primary bg-muted'
                           : 'border-border hover:bg-muted/30')
                       }
                     >
-                      <div className="font-heading">{h.displayName}</div>
-                      <p className="text-sm text-muted-foreground">{h.description}</p>
+                      <img
+                        src={heritageIconPath(h.key, gender)}
+                        alt=""
+                        className="w-12 h-12 rounded-md object-cover flex-shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-heading">{h.displayName}</div>
+                        <p className="text-sm text-muted-foreground">{h.description}</p>
+                      </div>
                     </button>
                   </li>
                 ))}
