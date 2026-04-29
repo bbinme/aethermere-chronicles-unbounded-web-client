@@ -4,7 +4,7 @@ import { listLineages } from '@/api/rulesets';
 import { RULESET_KEY, type WizardValues } from './schema';
 
 function slugifyKey(key: string): string {
-  return key.toLowerCase().replace(/\s+/g, '-');
+  return key.toLowerCase().replace(/[\s_]+/g, '-');
 }
 
 function lineageIconPath(key: string, gender: string): string {

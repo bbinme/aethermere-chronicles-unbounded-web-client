@@ -12,6 +12,12 @@ export const getCharacter = (characterId: string) =>
 export const createCharacter = (req: CharacterCreateRequest) =>
   apiFetch<CharacterResponse>('/api/player-characters', { method: 'POST', body: req });
 
+export const renameCharacter = (characterId: string, name: string) =>
+  apiFetch<CharacterResponse>(`/api/player-characters/${encodeURIComponent(characterId)}`, {
+    method: 'PATCH',
+    body: { name },
+  });
+
 export const uploadPortrait = (characterId: string, file: Blob) => {
   const fd = new FormData();
   fd.append('file', file);

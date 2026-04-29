@@ -34,18 +34,20 @@ export function CharacterListPage() {
         {!isLoading && characters.length > 0 && (
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {characters.map((c) => (
-              <li
-                key={c.id}
-                className="border border-border rounded-md p-4 flex gap-4 items-center"
-              >
-                <CharacterPortrait characterId={c.id} alt={c.name} />
-                <div>
-                  <h2 className="font-heading text-xl">{c.name}</h2>
-                  <p className="text-muted-foreground text-sm">
-                    {c.lineage} {c.charClass}
-                  </p>
-                  <p className="text-muted-foreground text-xs">Level {c.level}</p>
-                </div>
+              <li key={c.id}>
+                <Link
+                  to={`/characters/${encodeURIComponent(c.id)}`}
+                  className="border border-border rounded-md p-4 flex gap-4 items-center transition-colors hover:bg-muted/30 hover:border-primary"
+                >
+                  <CharacterPortrait characterId={c.id} alt={c.name} />
+                  <div>
+                    <h2 className="font-heading text-xl">{c.name}</h2>
+                    <p className="text-muted-foreground text-sm">
+                      {c.lineage} {c.charClass}
+                    </p>
+                    <p className="text-muted-foreground text-xs">Level {c.level}</p>
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>
