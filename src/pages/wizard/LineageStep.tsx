@@ -3,14 +3,18 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { listLineages } from '@/api/rulesets';
 import { RULESET_KEY, type WizardValues } from './schema';
 
+function slugifyKey(key: string): string {
+  return key.toLowerCase().replace(/\s+/g, '-');
+}
+
 function lineageIconPath(key: string, gender: string): string {
   const folder = gender === 'FEMALE' ? 'lineages_f' : 'lineages';
-  return `/icons/${folder}/${key.toLowerCase()}.png`;
+  return `/icons/${folder}/${slugifyKey(key)}.png`;
 }
 
 function heritageIconPath(key: string, gender: string): string {
   const folder = gender === 'FEMALE' ? 'heritages_f' : 'heritages';
-  return `/icons/${folder}/${key.toLowerCase()}.png`;
+  return `/icons/${folder}/${slugifyKey(key)}.png`;
 }
 
 export function LineageStep() {
