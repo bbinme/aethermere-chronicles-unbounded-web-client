@@ -43,7 +43,7 @@ export function CharacterListPage() {
                   <div>
                     <h2 className="font-heading text-xl">{c.name}</h2>
                     <p className="text-muted-foreground text-sm">
-                      {c.lineage} {c.charClass}
+                      {[c.lineage?.name, c.characterClass].filter(Boolean).join(' ')}
                     </p>
                     <p className="text-muted-foreground text-xs">Level {c.level}</p>
                   </div>

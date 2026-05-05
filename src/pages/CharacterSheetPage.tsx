@@ -12,7 +12,10 @@ import {
   renameCharacter,
   uploadPortrait,
 } from '@/api/characters';
+import { listClasses } from '@/api/rulesets';
 import { ApiError } from '@/api/errors';
+import { firstLevelHp } from '@/pages/wizard/pointBuy';
+import type { CharacterResponse, ClassResponse } from '@/api/types';
 
 const ABILITY_LABELS: Record<string, string> = {
   strength: 'STR',
@@ -37,6 +40,12 @@ export function CharacterSheetPage() {
     queryKey: ['character', characterId],
     queryFn: () => getCharacter(characterId),
     enabled: !!characterId,
+  });
+
+  const { data: classes = [] } = useQuery({
+    queryKey: ['classes', character?.ruleset],
+    queryFn: () => listClasses(character!.ruleset),
+    enabled: !!character?.ruleset,
   });
 
   const [editingName, setEditingName] = useState(false);
@@ -102,9 +111,16 @@ export function CharacterSheetPage() {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto space-y-6">
-        <Button asChild variant="ghost">
-          <Link to="/">← Back to characters</Link>
-        </Button>
+        <div className="flex justify-between items-center">
+          <Button asChild variant="ghost">
+            <Link to="/">← Back to characters</Link>
+          </Button>
+          <Button asChild>
+            <Link to={`/characters/${encodeURIComponent(character.id)}/worlds`}>
+              Play
+            </Link>
+          </Button>
+        </div>
 
         <header className="flex gap-6 items-start">
           <CharacterPortrait
@@ -170,7 +186,9 @@ export function CharacterSheetPage() {
               </div>
             )}
             <p className="text-muted-foreground">
-              Level {character.level} {character.lineage} {character.charClass}
+              {[`Level ${character.level}`, character.lineage?.name, character.characterClass]
+                .filter(Boolean)
+                .join(' ')}
             </p>
           </div>
         </header>
@@ -200,23 +218,27 @@ export function CharacterSheetPage() {
         <section className="border-t border-border pt-6 space-y-2">
           <h2 className="text-xl font-heading">Details</h2>
           <Row label="Ruleset" value={character.ruleset} />
-          <Row label="Lineage" value={character.lineage} />
-          <Row label="Heritage" value={character.heritage} />
-          <Row label="Class" value={character.charClass} />
-          <Row label="Culture" value={character.culture} />
+          <Row label="Lineage" value={character.lineage?.name ?? '—'} />
+          <Row label="Heritage" value={character.heritage?.name ?? '—'} />
+          <Row label="Class" value={character.characterClass} />
+          <Row label="Culture" value={character.culture?.name ?? '—'} />
           <Row label="Level" value={String(character.level)} />
+          <Row label="HP" value={resolveHpDisplay(character, classes)} />
         </section>
 
-        {character.abilities && (
+        {character.abilityScores && (
           <section className="border-t border-border pt-6 space-y-3">
             <h2 className="text-xl font-heading">Abilities</h2>
             <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {Object.entries(character.abilities).map(([key, value]) => (
+              {Object.entries(character.abilityScores).map(([key, value]) => (
                 <li key={key} className="text-center">
                   <div className="text-sm text-muted-foreground">
                     {ABILITY_LABELS[key] ?? key}
                   </div>
-                  <div className="font-heading text-lg">{value}</div>
+                  <div className="font-heading text-lg">{value.score}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {value.modifier}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -236,4 +258,22 @@ function Row({ label, value }: { label: string; value: string }) {
       <span>{value}</span>
     </div>
   );
+}
+
+function resolveHpDisplay(
+  character: CharacterResponse,
+  classes: ClassResponse[],
+): string {
+  // Server-provided HP wins once GMS computes it.
+  const serverMax = character.hitPoints?.max ?? 0;
+  if (serverMax > 0) return String(serverMax);
+  // Client-side fallback only at 1st level.
+  if (character.level !== 1) return '—';
+  const cls = classes.find((c) => c.key === character.characterClass);
+  const conMod = parseInt(
+    character.abilityScores?.constitution?.modifier ?? '0',
+    10,
+  );
+  const hp = firstLevelHp(cls?.hitDie, Number.isFinite(conMod) ? conMod : 0);
+  return hp == null ? '—' : String(hp);
 }

@@ -4,6 +4,8 @@ import {
   marginalCost,
   canIncrement,
   canDecrement,
+  firstLevelHp,
+  modifierOf,
   pointsRemaining,
   TOTAL_POINTS,
 } from '../pointBuy';
@@ -66,4 +68,36 @@ describe('canIncrement', () => {
 describe('canDecrement', () => {
   test('false at MIN_SCORE', () => expect(canDecrement(8)).toBe(false));
   test('true above MIN_SCORE', () => expect(canDecrement(9)).toBe(true));
+});
+
+describe('firstLevelHp', () => {
+  test('hitDie + positive Con mod', () => expect(firstLevelHp(10, 2)).toBe(12));
+  test('hitDie + negative Con mod', () => expect(firstLevelHp(8, -1)).toBe(7));
+  test('hitDie + zero Con mod', () => expect(firstLevelHp(6, 0)).toBe(6));
+  test('returns null when hitDie is undefined', () =>
+    expect(firstLevelHp(undefined, 3)).toBeNull());
+  test('returns null when hitDie is 0', () => expect(firstLevelHp(0, 3)).toBeNull());
+});
+
+describe('modifierOf', () => {
+  test('matches the D&D 5e chart', () => {
+    expect(modifierOf(3)).toBe(-4);
+    expect(modifierOf(4)).toBe(-3);
+    expect(modifierOf(5)).toBe(-3);
+    expect(modifierOf(6)).toBe(-2);
+    expect(modifierOf(7)).toBe(-2);
+    expect(modifierOf(8)).toBe(-1);
+    expect(modifierOf(9)).toBe(-1);
+    expect(modifierOf(10)).toBe(0);
+    expect(modifierOf(11)).toBe(0);
+    expect(modifierOf(12)).toBe(1);
+    expect(modifierOf(13)).toBe(1);
+    expect(modifierOf(14)).toBe(2);
+    expect(modifierOf(15)).toBe(2);
+    expect(modifierOf(16)).toBe(3);
+    expect(modifierOf(17)).toBe(3);
+    expect(modifierOf(18)).toBe(4);
+    expect(modifierOf(19)).toBe(4);
+    expect(modifierOf(20)).toBe(5);
+  });
 });

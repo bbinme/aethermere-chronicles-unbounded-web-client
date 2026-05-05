@@ -1,7 +1,14 @@
 import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { listClasses, listCultures, listLineages } from '@/api/rulesets';
-import { ABILITY_KEYS, ABILITY_LABELS } from './pointBuy';
+import {
+  ABILITY_KEYS,
+  ABILITY_LABELS,
+  applyBonuses,
+  firstLevelHp,
+  modifierOf,
+  type AbilityKey,
+} from './pointBuy';
 import { RULESET_KEY, type WizardValues } from './schema';
 
 const GENDER_LABELS: Record<string, string> = {
@@ -32,6 +39,14 @@ export function ReviewStep() {
   const cls = classes.find((c) => c.key === v.charClass);
   const culture = cultures.find((c) => c.key === v.culture);
 
+  const finalAbilities = applyBonuses(
+    v.abilities,
+    v.bonusPlus2 as AbilityKey | '',
+    v.bonusPlus1 as AbilityKey | '',
+  );
+  const conMod = modifierOf(finalAbilities.constitution);
+  const hp = firstLevelHp(cls?.hitDie, conMod);
+
   return (
     <fieldset className="space-y-2">
       <legend className="text-2xl font-heading mb-4">Review</legend>
@@ -43,6 +58,7 @@ export function ReviewStep() {
       <Row label="Heritage" value={heritage?.displayName ?? v.heritage} />
       <Row label="Class" value={cls?.displayName ?? v.charClass} />
       <Row label="Culture" value={culture?.displayName ?? v.culture} />
+      {hp !== null && <Row label="Hit Points (1st level)" value={String(hp)} />}
       <div className="pt-2">
         <h3 className="font-heading mb-1">Abilities</h3>
         <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">

@@ -57,6 +57,22 @@ export function canDecrement(score: number): boolean {
   return score > MIN_SCORE;
 }
 
+export function modifierOf(score: number): number {
+  return Math.floor((score - 10) / 2);
+}
+
+/**
+ * 1st-level HP per 5e: max hit-die roll + Constitution modifier.
+ * Returns null when hitDie is missing or 0 — caller hides the HP figure.
+ */
+export function firstLevelHp(
+  hitDie: number | undefined,
+  conMod: number,
+): number | null {
+  if (!hitDie) return null;
+  return hitDie + conMod;
+}
+
 export function applyBonuses(
   base: Record<AbilityKey, number>,
   plus2: AbilityKey | '',

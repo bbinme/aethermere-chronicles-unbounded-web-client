@@ -110,6 +110,31 @@ async function fillWizardThroughReview(
   await user.click(screen.getByRole('button', { name: /^next$/i }));
 }
 
+function fullCharacterMock(id: string, name: string) {
+  return {
+    id,
+    playerId: 'player-1',
+    name,
+    ruleset: 'DND',
+    characterClass: 'Fighter',
+    subclass: null,
+    level: 1,
+    background: null,
+    alignment: null,
+    lineage: { key: 'HUMAN', name: 'Human' },
+    heritage: { key: 'LOWLANDER', name: 'Lowlander' },
+    culture: { key: 'HIGHBORN', name: 'Highborn' },
+    abilityScores: {
+      strength:     { score: 10, modifier: '+0', pointBuyBonus: '+2' },
+      dexterity:    { score: 9,  modifier: '-1', pointBuyBonus: '+1' },
+      constitution: { score: 8,  modifier: '-1', pointBuyBonus: '+0' },
+      intelligence: { score: 8,  modifier: '-1', pointBuyBonus: '+0' },
+      wisdom:       { score: 8,  modifier: '-1', pointBuyBonus: '+0' },
+      charisma:     { score: 8,  modifier: '-1', pointBuyBonus: '+0' },
+    },
+  };
+}
+
 test('happy path: creates character and navigates home', async () => {
   setupRulesetHandlers();
   let createBody: unknown = null;
@@ -118,24 +143,7 @@ test('happy path: creates character and navigates home', async () => {
       'http://localhost:8080/api/player-characters',
       async ({ request }) => {
         createBody = await request.json();
-        return HttpResponse.json({
-          id: 'c-1',
-          name: 'Aric',
-          ruleset: 'DND',
-          charClass: 'fighter',
-          lineage: 'human',
-          heritage: 'lowlander',
-          culture: 'highborn',
-          level: 1,
-          abilities: {
-            strength: 8,
-            dexterity: 8,
-            constitution: 8,
-            intelligence: 8,
-            wisdom: 8,
-            charisma: 8,
-          },
-        });
+        return HttpResponse.json(fullCharacterMock('c-1', 'Aric'));
       },
     ),
   );
@@ -196,6 +204,83 @@ test('field error from server: jumps back to errored step', async () => {
   expect(
     screen.getByRole('button', { name: /^next$/i }),
   ).toBeInTheDocument();
+});
+
+test('heritage-less lineage: wizard advances and submits empty heritage', async () => {
+  // Custom rulesets handlers — Human has no heritages here.
+  server.use(
+    http.get('http://localhost:8080/api/rulesets/DND/lineages', () =>
+      HttpResponse.json({
+        term: 'Lineage',
+        lineages: [
+          { key: 'human', displayName: 'Human', description: '', heritages: [] },
+        ],
+      }),
+    ),
+    http.get('http://localhost:8080/api/rulesets/DND/classes', () =>
+      HttpResponse.json({
+        term: 'Class',
+        classes: [{ key: 'fighter', displayName: 'Fighter', description: '' }],
+      }),
+    ),
+    http.get('http://localhost:8080/api/rulesets/DND/cultures', () =>
+      HttpResponse.json({
+        term: 'Culture',
+        cultures: [
+          { key: 'highborn', displayName: 'Highborn', description: '' },
+        ],
+      }),
+    ),
+  );
+  let createBody: { heritage?: unknown } | null = null;
+  server.use(
+    http.post(
+      'http://localhost:8080/api/player-characters',
+      async ({ request }) => {
+        createBody = (await request.json()) as { heritage?: unknown };
+        const body = fullCharacterMock('c-2', 'Aric');
+        body.heritage = null as unknown as typeof body.heritage;
+        return HttpResponse.json(body);
+      },
+    ),
+  );
+  const user = userEvent.setup();
+  renderWizard();
+
+  // Step 0: Identity
+  await user.type(screen.getByLabelText(/^name/i), 'Aric');
+  await user.selectOptions(screen.getByLabelText(/gender/i), 'MALE');
+  await user.click(screen.getByRole('button', { name: /^next$/i }));
+
+  // Step 1: Lineage — pick Human (no heritages); expect Next to advance with no heritage UI.
+  await user.click(await screen.findByText('Human'));
+  expect(screen.queryByRole('heading', { name: /heritage/i })).toBeNull();
+  await user.click(screen.getByRole('button', { name: /^next$/i }));
+
+  // Step 2: Class
+  await user.click(await screen.findByText('Fighter'));
+  await user.click(screen.getByRole('button', { name: /^next$/i }));
+
+  // Step 3: Culture
+  await user.click(await screen.findByText('Highborn'));
+  await user.click(screen.getByRole('button', { name: /^next$/i }));
+
+  // Step 4: Stats
+  await user.click(screen.getByLabelText(/\+2 bonus to STR/i));
+  await user.click(screen.getByLabelText(/\+1 bonus to DEX/i));
+  await user.click(screen.getByRole('button', { name: /^next$/i }));
+
+  // Step 5: Portrait — skip
+  await user.click(screen.getByRole('button', { name: /^next$/i }));
+
+  // Step 6: Review — submit
+  await user.click(screen.getByRole('button', { name: /create character/i }));
+  expect(await screen.findByText('Home')).toBeInTheDocument();
+  expect(createBody).toMatchObject({
+    name: 'Aric',
+    lineage: 'human',
+    heritage: '',
+  });
 });
 
 test('5xx: stays on review with generic error', async () => {

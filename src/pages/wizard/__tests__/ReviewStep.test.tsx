@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -73,7 +73,9 @@ test('renders all wizard values with display names looked up', async () => {
     http.get('http://localhost:8080/api/rulesets/DND/classes', () =>
       HttpResponse.json({
         term: 'Class',
-        classes: [{ key: 'fighter', displayName: 'Fighter', description: '' }],
+        classes: [
+          { key: 'fighter', displayName: 'Fighter', description: '', hitDie: 10 },
+        ],
       }),
     ),
     http.get('http://localhost:8080/api/rulesets/DND/cultures', () =>
@@ -97,4 +99,50 @@ test('renders all wizard values with display names looked up', async () => {
   expect(screen.getByText('None')).toBeInTheDocument();
   // STR = 14
   expect(screen.getByText('14')).toBeInTheDocument();
+  // 1st-level HP: Fighter d10 + Con mod (CON 13 → +1) = 11.
+  // Scope to the HP row so we don't collide with WIS = 11 in the abilities grid.
+  const hpLabel = await screen.findByText(/hit points/i);
+  const hpRow = hpLabel.parentElement!;
+  expect(within(hpRow).getByText('11')).toBeInTheDocument();
+});
+
+test('omits HP line when class has no hitDie', async () => {
+  server.use(
+    http.get('http://localhost:8080/api/rulesets/DND/lineages', () =>
+      HttpResponse.json({
+        term: 'Lineage',
+        lineages: [
+          {
+            key: 'human',
+            displayName: 'Human',
+            description: '',
+            heritages: [
+              {
+                key: 'lowlander',
+                displayName: 'Lowlander',
+                description: '',
+                isDefault: true,
+              },
+            ],
+          },
+        ],
+      }),
+    ),
+    http.get('http://localhost:8080/api/rulesets/DND/classes', () =>
+      HttpResponse.json({
+        term: 'Class',
+        // hitDie omitted — simulates GMS pre-rollout
+        classes: [{ key: 'fighter', displayName: 'Fighter', description: '' }],
+      }),
+    ),
+    http.get('http://localhost:8080/api/rulesets/DND/cultures', () =>
+      HttpResponse.json({
+        term: 'Culture',
+        cultures: [{ key: 'highborn', displayName: 'Highborn', description: '' }],
+      }),
+    ),
+  );
+  setup({});
+  expect(await screen.findByText('Fighter')).toBeInTheDocument();
+  expect(screen.queryByText(/hit points/i)).toBeNull();
 });

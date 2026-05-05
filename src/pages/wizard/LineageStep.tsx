@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Controller, useFormContext } from 'react-hook-form';
 import { listLineages } from '@/api/rulesets';
@@ -18,8 +19,10 @@ function heritageIconPath(key: string, gender: string): string {
 }
 
 export function LineageStep() {
-  const { control, watch, setValue } = useFormContext<WizardValues>();
+  const { control, watch, setValue, setError, clearErrors } =
+    useFormContext<WizardValues>();
   const selectedLineage = watch('lineage');
+  const selectedHeritage = watch('heritage');
   const gender = watch('gender');
   const {
     data: lineages = [],
@@ -30,11 +33,25 @@ export function LineageStep() {
     queryFn: () => listLineages(RULESET_KEY),
   });
 
-  if (isLoading) return <p>Loading lineages…</p>;
-  if (isError) return <p className="text-destructive">Failed to load lineages.</p>;
-
   const currentLineage = lineages.find((l) => l.key === selectedLineage);
   const heritages = currentLineage?.heritages ?? [];
+
+  // Heritage is conditionally required: only when the chosen lineage exposes one
+  // or more heritages. The schema can't express this, so we enforce it here.
+  useEffect(() => {
+    if (!selectedLineage || heritages.length === 0) {
+      clearErrors('heritage');
+      return;
+    }
+    if (!selectedHeritage) {
+      setError('heritage', { type: 'manual', message: 'Required' });
+    } else {
+      clearErrors('heritage');
+    }
+  }, [selectedLineage, heritages.length, selectedHeritage, setError, clearErrors]);
+
+  if (isLoading) return <p>Loading lineages…</p>;
+  if (isError) return <p className="text-destructive">Failed to load lineages.</p>;
 
   return (
     <fieldset>

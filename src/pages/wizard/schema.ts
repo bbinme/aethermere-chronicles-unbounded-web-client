@@ -14,7 +14,10 @@ export const wizardSchema = z
     bio: z.string().max(500, 'Max 500 chars').optional(),
     // Lineage / Class / Culture (keys from GMS)
     lineage: z.string().min(1, 'Required'),
-    heritage: z.string().min(1, 'Required'),
+    // Heritage is conditionally required: only when the chosen lineage exposes one
+    // or more heritages. The schema can't see the loaded lineage list, so the
+    // conditional rule is enforced in LineageStep via setError/clearErrors.
+    heritage: z.string(),
     charClass: z.string().min(1, 'Required'),
     culture: z.string().min(1, 'Required'),
     // Stats — DND 27-point buy (each ability 8..16). Schema allows under-spent

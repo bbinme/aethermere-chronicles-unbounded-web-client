@@ -8,31 +8,37 @@ beforeEach(() => {
   configureApiClient({ getToken: () => 'tok', setToken: () => {} });
 });
 
+function fullCharacterMock(id: string, name: string) {
+  return {
+    id,
+    playerId: 'player-1',
+    name,
+    ruleset: 'core',
+    characterClass: 'Fighter',
+    subclass: null,
+    level: 1,
+    background: null,
+    alignment: null,
+    lineage: { key: 'HUMAN', name: 'Human' },
+    heritage: { key: 'LOWLANDER', name: 'Lowlander' },
+    culture: { key: 'HIGHBORN', name: 'Highborn' },
+    abilityScores: {
+      strength:     { score: 10, modifier: '+0', pointBuyBonus: '+0' },
+      dexterity:    { score: 10, modifier: '+0', pointBuyBonus: '+0' },
+      constitution: { score: 10, modifier: '+0', pointBuyBonus: '+0' },
+      intelligence: { score: 10, modifier: '+0', pointBuyBonus: '+0' },
+      wisdom:       { score: 10, modifier: '+0', pointBuyBonus: '+0' },
+      charisma:     { score: 10, modifier: '+0', pointBuyBonus: '+0' },
+    },
+  };
+}
+
 test('listCharacters encodes playerId and returns array', async () => {
   server.use(
     http.get('http://localhost:8080/api/characters', ({ request }) => {
       const url = new URL(request.url);
       expect(url.searchParams.get('playerId')).toBe('player 1');
-      return HttpResponse.json([
-        {
-          id: 'c1',
-          name: 'Aric',
-          ruleset: 'core',
-          charClass: 'fighter',
-          lineage: 'human',
-          heritage: 'lowlander',
-          culture: 'highborn',
-          level: 1,
-          abilities: {
-            strength: 10,
-            dexterity: 10,
-            constitution: 10,
-            intelligence: 10,
-            wisdom: 10,
-            charisma: 10,
-          },
-        },
-      ]);
+      return HttpResponse.json([fullCharacterMock('c1', 'Aric')]);
     }),
   );
   const res = await listCharacters('player 1');
@@ -45,24 +51,7 @@ test('createCharacter posts to /api/player-characters', async () => {
   server.use(
     http.post('http://localhost:8080/api/player-characters', async ({ request }) => {
       body = await request.json();
-      return HttpResponse.json({
-        id: 'c1',
-        name: 'Aric',
-        ruleset: 'core',
-        charClass: 'fighter',
-        lineage: 'human',
-        heritage: 'lowlander',
-        culture: 'highborn',
-        level: 1,
-        abilities: {
-          strength: 10,
-          dexterity: 10,
-          constitution: 10,
-          intelligence: 10,
-          wisdom: 10,
-          charisma: 10,
-        },
-      });
+      return HttpResponse.json(fullCharacterMock('c1', 'Aric'));
     }),
   );
   const res = await createCharacter({

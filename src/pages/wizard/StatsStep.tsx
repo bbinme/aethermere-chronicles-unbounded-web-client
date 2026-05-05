@@ -7,9 +7,16 @@ import {
   applyBonuses,
   canDecrement,
   canIncrement,
+  modifierOf,
   pointsRemaining,
   type AbilityKey,
 } from './pointBuy';
+
+function formatModifier(score: number): string {
+  const m = modifierOf(score);
+  if (m < 0) return `−${Math.abs(m)}`;
+  return `+${m}`;
+}
 import type { WizardValues } from './schema';
 
 export function StatsStep() {
@@ -31,7 +38,7 @@ export function StatsStep() {
         Points remaining: <strong>{remaining}</strong> / {TOTAL_POINTS}
       </p>
 
-      <div className="grid grid-cols-[3rem_auto_2.5rem_auto_3rem_3rem_4rem] gap-2 items-center text-sm text-muted-foreground px-1">
+      <div className="grid grid-cols-[3rem_auto_2.5rem_auto_3rem_3rem_4rem_3rem] gap-2 items-center text-sm text-muted-foreground px-1">
         <span></span>
         <span></span>
         <span></span>
@@ -39,6 +46,7 @@ export function StatsStep() {
         <span className="text-center">+2</span>
         <span className="text-center">+1</span>
         <span className="text-right">Total</span>
+        <span className="text-right">Mod</span>
       </div>
 
       <div className="space-y-2">
@@ -50,7 +58,7 @@ export function StatsStep() {
             render={({ field }) => {
               const score = field.value;
               return (
-                <div className="grid grid-cols-[3rem_auto_2.5rem_auto_3rem_3rem_4rem] gap-2 items-center">
+                <div className="grid grid-cols-[3rem_auto_2.5rem_auto_3rem_3rem_4rem_3rem] gap-2 items-center">
                   <span className="font-heading">{ABILITY_LABELS[key]}</span>
                   <Button
                     type="button"
@@ -77,24 +85,36 @@ export function StatsStep() {
                     +
                   </Button>
                   <input
-                    type="radio"
-                    name="bonusPlus2"
-                    value={key}
+                    type="checkbox"
                     checked={plus2 === key}
-                    onChange={() => setValue('bonusPlus2', key, { shouldValidate: true })}
+                    disabled={plus1 === key}
+                    onChange={() =>
+                      setValue('bonusPlus2', plus2 === key ? '' : key, {
+                        shouldValidate: true,
+                      })
+                    }
                     aria-label={`+2 bonus to ${ABILITY_LABELS[key]}`}
-                    className="justify-self-center accent-primary"
+                    className="justify-self-center accent-primary disabled:opacity-40"
                   />
                   <input
-                    type="radio"
-                    name="bonusPlus1"
-                    value={key}
+                    type="checkbox"
                     checked={plus1 === key}
-                    onChange={() => setValue('bonusPlus1', key, { shouldValidate: true })}
+                    disabled={plus2 === key}
+                    onChange={() =>
+                      setValue('bonusPlus1', plus1 === key ? '' : key, {
+                        shouldValidate: true,
+                      })
+                    }
                     aria-label={`+1 bonus to ${ABILITY_LABELS[key]}`}
-                    className="justify-self-center accent-primary"
+                    className="justify-self-center accent-primary disabled:opacity-40"
                   />
                   <span className="text-right font-heading text-lg">{finalScores[key]}</span>
+                  <span
+                    className="text-right font-heading text-lg"
+                    data-testid={`mod-${key}`}
+                  >
+                    {formatModifier(finalScores[key])}
+                  </span>
                 </div>
               );
             }}
